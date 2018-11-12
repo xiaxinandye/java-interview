@@ -6,7 +6,7 @@
 
 ## 🌳 Spring
 
-* [Spring基础](https://github.com/xiaxinandye/java-interview/blob/master/notes/Spring%E5%9F%BA%E7%A1%80.md)
+* [Spring基础](https://lichen201531060.gitbook.io/demo/~/edit/drafts/-LR4fXo_0r7optiqPxeX/spring-ji-chu)
 
   简述Spring框架的含义、核心模块、IoC、AOP和Spring MVC。
 
