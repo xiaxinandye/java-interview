@@ -76,9 +76,7 @@ IoC控制反转，又可以称为依赖注入。控制反转是把传统上由�
 
 Spring 框架的核心就是Spring容器，由容器来创建对象，并将它们装配在一起，配置并管理它们的完整生命周期， Spring容器使用依赖注入来管理组成应用程序的组件。容器通过读取提供的配置元数据\(该元数据可以通过XML、Java注解或Java代码提供。\)来接受对象进行实例化，配置和组装的命令。
 
-{% hint style="info" %}
-Spring IoC的实现原理：工厂模式加反射机制
-{% endhint %}
+注：_Spring IoC的实现原理就是工厂模式加反射机制。_
 
 ### 种类
 
@@ -102,9 +100,7 @@ Spring IoC的实现原理：工厂模式加反射机制
 2. setter注入
 3. 接口注入
 
-{% hint style="info" %}
-在Spring Framework中，仅使用构造函数注入和setter注入
-{% endhint %}
+注：_在Spring Framework中仅使用构造函数和setter注入。_
 
 ### 构造函数注入和setter注入的区别
 
@@ -123,10 +119,6 @@ Spring IoC的实现原理：工厂模式加反射机制
 2. 基于注解配置：在相关的类、方法或字段声明上使用注解，将bean配置为组件类本身，需要开启注解装配
 3. 基于Java API的配置：通过使用@Bean和@Configuration注解完成
 
-{% hint style="info" %}
-当Spring Bean基于XML配置时，此XML文件称为**Spring配置文件**，该文件主要包含类信息，它描述了这些类是如何配置以及相互依赖的。
-{% endhint %}
-
 ### Spring Bean的作用域
 
 Spring bean支持5种scope
@@ -136,10 +128,6 @@ Spring bean支持5种scope
 3. Request：每次Http请求都会创建一个新的bean
 4. Session：同一个HttpSession共享同一个bean，不同的HttpSession使用不同的bean
 5. GlobalSession：同一个全局Session共享一个bean
-
-{% hint style="info" %}
-仅当用户使用支持Web的ApplicationContext时，最后3个才可用。
-{% endhint %}
 
 ### Spring bean的生命周期
 
