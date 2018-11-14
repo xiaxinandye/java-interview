@@ -121,8 +121,6 @@ ApplicationContext applicationContext = new ClassPathXmlApplicaitonContext("appl
 
 Spring配置文件是XML文件，该文件主要包含类信息，它描述了这些类是如何配置以及相互依赖的。
 
-{% code-tabs %}
-{% code-tabs-item title="applicationContext.xml" %}
 ```markup
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -142,8 +140,6 @@ Spring配置文件是XML文件，该文件主要包含类信息，它描述了�
     </bean>
 </beans>
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 注 ：_项目路径通常以classpath为根路径，普通Web项目中，classpath通常指src根路径下，如果是Maven项目，classpath通常指向resources文件夹下_。
 
