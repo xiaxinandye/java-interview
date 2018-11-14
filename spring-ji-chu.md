@@ -92,15 +92,13 @@ Spring 框架的核心就是Spring容器，由容器来创建对象，并将它�
 
 ### 实例化容器
 
-1. 在Java项目中，通常采用ClassPathXMLApplicationContext进行容器实例化。
+* 在Java项目中，通常采用ClassPathXmlApplicationContext进行容器实例化。
 
 ```java
-ApplictionContext applictionContext = new ClassPathXmlApplicitonContext("applictionContext.xml");
+ApplictionContext applictionContext = new ClassPathXmlApplicitonContext("applicitonContext.xml");)
 ```
 
-    2. 在Web项目中，通常采用ContextLoaderListener实现容器实例化。
-
-
+* 在Web项目中，通常采用ContextLoaderListener进行容器实例化。
 
 ## Spring里的依赖注入
 
