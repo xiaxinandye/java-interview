@@ -80,8 +80,8 @@ Spring 框架的核心就是Spring容器，由容器来创建对象，并将它�
 
 ### 种类
 
-1. BeanFactory：就像一个包含bean集合的工厂类，它会在客户端要求时实例化bean,不常用。
-2. ApplicationContext\(应用上下文\)：ApplicationContext接口扩展了BeanFactory接口，它在BeanFactory基础上提供了一些额外的功能，通常Spring配置均放在容器中，容器在项目中表现为xml配置文件\(如applicationContext.xml\)。
+1. `BeanFactory`：就像一个包含bean集合的工厂类，它会在客户端要求时实例化bean,不常用。
+2. `ApplicationContext`\(应用上下文\)：ApplicationContext接口扩展了BeanFactory接口，它在BeanFactory基础上提供了一些额外的功能，通常Spring配置均放在容器中，容器在项目中表现为xml配置文件\(如applicationContext.xml\)。
 
 #### 区别
 
@@ -235,13 +235,13 @@ public class Test {
 
 1. 基于XML配置
 2. 基于注解配置：在相关的类、方法或字段声明上使用注解，将bean配置为组件类本身，需要开启注解装配
-3. 基于Java API的配置：通过使用@Bean和@Configuration注解完成
+3. 基于Java API的配置：通过使用`@Bean`和`@Configuration`注解完成
 
 ### Spring Bean的作用域
 
-Spring bean支持5种scope，默认是Singleton。
+Spring bean支持5种scope，默认是`Singleton`。
 
-* Singleton：每一个Spring IoC容器中仅存在一个单实例bean
+* `Singleton`：每一个Spring IoC容器中仅存在一个单实例bean
 
 ```markup
  <!--定义bean交给Spring IoC容器管理-->
@@ -264,7 +264,7 @@ public class Test {
 }
 ```
 
-* Prototype：每次从容器中请求调用bean时，都会返回一个新的实例
+* `Prototype`：每次从容器中请求调用bean时，都会返回一个新的实例
 
 ```markup
 <!--定义bean交给Spring IoC容器管理-->
@@ -287,24 +287,24 @@ public class Test {
 }
 ```
 
-* Request：每次Http请求都会创建一个新的bean
-* Session：同一个HttpSession共享同一个bean，不同的HttpSession使用不同的bean
-* GlobalSession：同一个全局Session共享一个bean
+* `Request`：每次Http请求都会创建一个新的bean
+* `Session`：同一个HttpSession共享同一个bean，不同的HttpSession使用不同的bean
+* `GlobalSession`：同一个全局Session共享一个bean
 
 ### Spring bean的生命周期
 
 1. Spring IoC容器找到关于bean的定义并实例化该bean
 2. Spring IoC容器对bean进行依赖注入
-3. 如果bean实现了BeanNameAware接口，则将该bean的id传给setBeanName\(\)方法
-4. 如果bean实现了BeanFactoryAware接口，则将BeanFactory对象传给setBeanFactory\(\)方法
-5. 如果bean实现了BeanPostProcessor接口，则调用其postProcessBeforeInitialization\(\)方法
-6. 如果bean实现了InitializingBean接口，则调用其afterPropertySet方法
-7. 如果有何bean管理的BeanPostProcessor对象，则这些对象的postProcessAfterInitialization\(\)方法被调用
-8. 当销毁bean实例时，如果bean实现了DisposableBean接口，则调用其destory\(\)方法
+3. 如果bean实现了`BeanNameAware`接口，则将该bean的id传给`setBeanName()`方法
+4. 如果bean实现了`BeanFactoryAware`接口，则将`BeanFactory`对象传给`setBeanFactory()`方法
+5. 如果bean实现了`BeanPostProcessor`接口，则调用其`postProcessBeforeInitialization()`方法
+6. 如果bean实现了`InitializingBean`接口，则调用其`afterPropertySet()`方法
+7. 如果有何bean管理的`BeanPostProcessor`对象，则这些对象的`postProcessAfterInitialization()`方法被调用
+8. 当销毁bean实例时，如果bean实现了`DisposableBean`接口，则调用其`destory()`方法
 
 ### Spring内部bean
 
-bean作为另一个bean的属性时，可以将该bean声明为内部bean，内部bean配置位于&lt;property&gt;里。
+bean作为另一个bean的属性时，可以将该bean声明为内部bean，内部bean配置位于`<property>`里。
 
 ### Spring装配
 
@@ -314,8 +314,8 @@ bean作为另一个bean的属性时，可以将该bean声明为内部bean，内�
 
 通过检查BeanFactory的内容让Spring自动解析bean的协作者。自动装配的方式：
 
-* no：这是默认设置，表示没有自动装配。应使用显式bean引用进行装配
-* byName：它根据bean的名称注入对象依赖项。它匹配并装配其属性与XML文件中相同名称定义的bean
+* `no`：这是默认设置，表示没有自动装配。应使用显式bean引用进行装配
+* `byName`：它根据bean的名称注入对象依赖项。它匹配并装配其属性与XML文件中相同名称定义的bean
 
 ```markup
  <!--定义bean交给Spring IoC容器管理-->
@@ -345,7 +345,7 @@ public class Test {
 }
 ```
 
-* byType：它根据类型注入对象依赖项。如果属性的类型与XML文件中的一个bean名称匹配，则匹配并装配属性
+* `byType`：它根据类型注入对象依赖项。如果属性的类型与XML文件中的一个bean名称匹配，则匹配并装配属性
 
 ```markup
  <!--定义bean交给Spring IoC容器管理-->
@@ -411,11 +411,11 @@ public class Test {
 }
 ```
 
-* autodetect：首先容器尝试通过构造函数使用autowire装配，如果不能，则尝试通过byType自动装配
+* `autodetect`：首先容器尝试通过构造函数使用autowire装配，如果不能，则尝试通过`byType`自动装配
 
 **自动装配的局限：**
 
-* 可能会覆盖：您始终可以使用&lt;constructor-arg&gt;和&lt;property&gt;设置指定依赖项，这将覆盖自动装配。
+* 可能会覆盖：您始终可以使用`<constructor-arg>`和`<property>`设置指定依赖项，这将覆盖自动装配。
 * 基本数据类型无法自动装配
 * 自动装配可能不太精确
 
@@ -465,7 +465,7 @@ public class Test {
 }
 ```
 
-* &lt;context:componet-scan base—package="bean类"/&gt;：与前者不同的是，它扫描的bean不需要显式地注册到容器中，可以指定扫描package下的bean，完成自动装配，但还需@Component注解使将类标记为bean，使其能被Spring的扫描机制扫描到。
+* `<context:componet-scan base—package="bean类"/>`：与前者不同的是，它扫描的bean不需要显式地注册到容器中，可以指定扫描package下的bean，完成自动装配，但还需@Component注解使将类标记为bean，使其能被Spring的扫描机制扫描到。
 
 ```markup
  <!--开启注解扫描-->
