@@ -80,7 +80,7 @@ Spring 框架的核心就是Spring容器，由容器来创建对象，并将它�
 
 ### 种类
 
-1. BeanFactory：就像一个包含bean集合的工厂类，它会在客户端要求时实例化bean
+1. BeanFactory：就像一个包含bean集合的工厂类，它会在客户端要求时实例化bean,不常用。
 2. ApplicationContext\(应用上下文\)：ApplicationContext接口扩展了BeanFactory接口，它在BeanFactory基础上提供了一些额外的功能，通常Spring配置均放在容器中，容器在项目中表现为xml配置文件\(如applicationContext.xml\)。
 
 #### 区别
@@ -92,13 +92,26 @@ Spring 框架的核心就是Spring容器，由容器来创建对象，并将它�
 
 ### 实例化容器
 
-* 在Java项目中，通常采用ClassPathXmlApplicationContext进行容器实例化。
+* 在Java项目中，通常采用`ClassPathXmlApplicationContext`进行容器实例化。
 
 ```java
-ApplictionContext applictionContext = new ClassPathXmlApplicitonContext("applicitonContext.xml");)
+ApplicationContext applicationContext = new ClassPathXmlApplicaitonContext("applicitonContext.xml");
 ```
 
-* 在Web项目中，通常采用ContextLoaderListener进行容器实例化。
+* 在Web项目中，通常采用`ContextLoaderListener`进行容器实例化。在Web服务器中加入以下实例化代码，通常位于web.xml文件中，即项目启动便实例化容器。
+
+```markup
+<!--指定Spring配置文件位置-->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:applicationContext.xml</param-value>
+    </context-param>
+
+    <!--指定以ContextLoaderListener的方式实例化容器-->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+```
 
 ## Spring里的依赖注入
 
@@ -126,6 +139,26 @@ ApplictionContext applictionContext = new ClassPathXmlApplicitonContext("applici
 ### Spring配置文件
 
 Spring配置文件是XML文件，该文件主要包含类信息，它描述了这些类是如何配置以及相互依赖的。
+
+```markup
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--定义bean交给Spring IoC容器管理-->
+    <bean id="category" class="com.yunche.spring.pojo.Category">
+        <!--为属性name注入初值"book"-->
+        <property name="name" value="book"/>
+    </bean>
+
+    <bean id="product" class="com.yunche.spring.pojo.Product">
+        <property name="name" value="Thinking in Java"/>
+        <!--内部bean category -->
+        <property name="category" ref="category"/>
+    </bean>
+</beans>
+```
 
 ### 配置Spring Bean
 
