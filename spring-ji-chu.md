@@ -314,11 +314,104 @@ bean作为另一个bean的属性时，可以将该bean声明为内部bean，内�
 
 通过检查BeanFactory的内容让Spring自动解析bean的协作者。自动装配的方式：
 
-1. no：这是默认设置，表示没有自动装配。应使用显式bean引用进行装配
-2. byName：它根据bean的名称注入对象依赖项。它匹配并装配其属性与XML文件中相同名称定义的bean
-3. byType：它根据类型注入对象依赖项。如果属性的类型与XML文件中的一个bean名称匹配，则匹配并装配属性
-4. 构造函数：它通过调用类的构造函数来注入依赖项。它有大量的参数
-5. autodetect：首先容器尝试通过构造函数使用autowire装配，如果不能，则尝试通过byType自动装配
+* no：这是默认设置，表示没有自动装配。应使用显式bean引用进行装配
+* byName：它根据bean的名称注入对象依赖项。它匹配并装配其属性与XML文件中相同名称定义的bean
+
+```markup
+ <!--定义bean交给Spring IoC容器管理-->
+    <bean id="category" class="com.yunche.spring.pojo.Category">
+        <!--为属性name注入初值"book"-->
+        <property name="name" value="book"/>
+    </bean>
+
+    <bean id="product" class="com.yunche.spring.pojo.Product" autowire="byName">
+        <!-- setter 注入-->
+        <property name="name" value="Thinking in Java"/>
+        <!--内部bean category 自动注入根据名称-->
+    </bean>
+```
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        Product p = (Product) context.getBean("product");
+        System.out.println(p.getName());
+        System.out.println(p.getCategory().getName());
+    } /*Output:
+    Thinking in Java
+    book
+    */
+}
+```
+
+* byType：它根据类型注入对象依赖项。如果属性的类型与XML文件中的一个bean名称匹配，则匹配并装配属性
+
+```markup
+ <!--定义bean交给Spring IoC容器管理-->
+    <bean id="category" class="com.yunche.spring.pojo.Category">
+        <!--为属性name注入初值"book"-->
+        <property name="name" value="book"/>
+    </bean>
+
+    <bean id="product" class="com.yunche.spring.pojo.Product" autowire="byType">
+        <!-- setter 注入-->
+        <property name="name" value="Thinking in Java"/>
+        <!--内部bean category 自动注入根据类型-->
+    </bean>
+```
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        Product p = (Product) context.getBean("product");
+        System.out.println(p.getName());
+        System.out.println(p.getCategory().getName());
+    } /*Output:
+    Thinking in Java
+    book
+    */
+}
+```
+
+* 构造函数：它通过调用类的构造函数来注入依赖项。它有大量的参数
+
+```markup
+ <!--定义bean交给Spring IoC容器管理-->
+    <bean id="category" class="com.yunche.spring.pojo.Category">
+        <!--为属性name注入初值"book"-->
+        <property name="name" value="book"/>
+    </bean>
+
+    <bean id="product" class="com.yunche.spring.pojo.Product" autowire="constructor">
+        <!-- setter 注入-->
+        <property name="name" value="Thinking in Java"/>
+        <!--内部bean category 构造函数注入-->
+    </bean>
+```
+
+```java
+public Product(Category category) {
+        this.category = category;
+    }
+```
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        Product p = (Product) context.getBean("product");
+        System.out.println(p.getName());
+        System.out.println(p.getCategory().getName());
+    } /*Output:
+    Thinking in Java
+    book
+    */
+}
+```
+
+* autodetect：首先容器尝试通过构造函数使用autowire装配，如果不能，则尝试通过byType自动装配
 
 **自动装配的局限：**
 
@@ -332,9 +425,98 @@ bean作为另一个bean的属性时，可以将该bean声明为内部bean，内�
 
 不使用XML来描述bean装配，开发人员通过在相关的类、方法或字段声明上使用注解 将配置移动到组件类，作为XML设置的替代方案。
 
-### 启动注解装配
+### 启动注解扫描实现自动装配
 
-配置&lt;context:annotion-config/&gt;元素在Spring配置文件中启用它。
+* `<context:annotation-config/>`:注解扫描是针对已经在Spring容器里注册过的bean
+
+```markup
+  <!--开启注解扫描-->
+    <context:annotation-config/>
+    <!--定义bean交给Spring IoC容器管理-->
+    <bean id="category" class="com.yunche.spring.pojo.Category">
+        <!--为属性name注入初值"book"-->
+        <property name="name" value="book"/>
+    </bean>
+
+    <bean id="product" class="com.yunche.spring.pojo.Product">
+        <!-- setter 注入-->
+        <property name="name" value="Thinking in Java"/>
+        <!--内部bean category 注解自动注入-->
+    </bean>
+```
+
+```java
+ @Autowired
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+```
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        Product p = (Product) context.getBean("product");
+        System.out.println(p.getName());
+        System.out.println(p.getCategory().getName());
+    } /*Output:Thinking in Java
+        book
+        */
+}
+```
+
+* &lt;context:componet-scan base—package="bean类"/&gt;：与前者不同的是，它扫描的bean不需要显式地注册到容器中，可以指定扫描package下的bean，完成自动装配，但还需@Component注解使将类标记为bean，使其能被Spring的扫描机制扫描到。
+
+```markup
+ <!--开启注解扫描-->
+    <context:component-scan base-package="com.yunche.spring.pojo"/>
+    <!--定义bean交给Spring IoC容器管理-->
+
+
+    <bean id="product" class="com.yunche.spring.pojo.Product">
+        <!-- setter 注入-->
+        <property name="name" value="Thinking in Java"/>
+        <!--内部bean category 注解自动注入-->
+    </bean>
+```
+
+```java
+@Component
+public class Category {
+    private int id;
+    private String name;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+}
+```
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        Product p = (Product) context.getBean("product");
+        System.out.println(p.getName());
+        System.out.println(p.getCategory());
+    } /*Output:Thinking in Java
+        com.yunche.spring.pojo.Category@5204062d
+        */
+}
+```
 
 ### @Component,@Controller,@Repository,@Service的区别
 
