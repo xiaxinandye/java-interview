@@ -81,7 +81,7 @@ Spring 框架的核心就是Spring容器，由容器来创建对象，并将它�
 ### 种类
 
 1. BeanFactory：就像一个包含bean集合的工厂类，它会在客户端要求时实例化bean
-2. ApplicationContext：ApplicationContext接口扩展了BeanFactory接口，它在BeanFactory基础上提供了一些额外的功能
+2. ApplicationContext\(应用上下文\)：ApplicationContext接口扩展了BeanFactory接口，它在BeanFactory基础上提供了一些额外的功能，通常Spring配置均放在容器中，容器在项目中表现为xml配置文件\(如applicationContext.xml\)。
 
 #### 区别
 
@@ -89,6 +89,18 @@ Spring 框架的核心就是Spring容器，由容器来创建对象，并将它�
 * BeanFactory使用语法显式提供资源对象，ApplicationContext自己创建和管理对象
 * BeanFactory不支持国际化，ApplicationContext支持国际化
 * BeanFactory不支持基于依赖的注解，ApplicationContext支持基于依赖的注解
+
+### 实例化容器
+
+1. 在Java项目中，通常采用ClassPathXMLApplicationContext进行容器实例化。
+
+```java
+ApplictionContext applictionContext = new ClassPathXmlApplicitonContext("applictionContext.xml");
+```
+
+    2. 在Web项目中，通常采用ContextLoaderListener实现容器实例化。
+
+
 
 ## Spring里的依赖注入
 
