@@ -113,25 +113,6 @@ ApplicationContext applicationContext = new ClassPathXmlApplicaitonContext("appl
     </listener>
 ```
 
-## Spring里的依赖注入
-
-在依赖注入中，你不必创建对象，但必须描述如何创建它们，不是直接在代码中将组件和服务连接在一起，而是描述配置文件中有哪些组件需要服务，由IoC容器将它们装配在一起。
-
-### 依赖注入的方式
-
-1. 构造函数注入
-2. setter注入
-3. 接口注入
-
-注：_在Spring Framework中仅使用构造函数和setter注入。_
-
-### 构造函数注入和setter注入的区别
-
-* 构造函数注入没有部分注入、setter注入有部分注入
-* 构造函数注入不会覆盖setter属性，setter注入会覆盖setter属性
-* 构造函数注入，任意修改都会创建一个新实例。setter注入，任意修改不会创建一个新实例
-* 构造函数注入适用于设置很多的属性，setter注入适用于设置少量属性
-
 ## Spring Bean
 
 它们是构成用户应用程序主干的对象，由Spring IoC容器基于用户提供给容器的配置元数据进实例化、配置、装配和管理的。
@@ -140,6 +121,8 @@ ApplicationContext applicationContext = new ClassPathXmlApplicaitonContext("appl
 
 Spring配置文件是XML文件，该文件主要包含类信息，它描述了这些类是如何配置以及相互依赖的。
 
+{% code-tabs %}
+{% code-tabs-item title="applicationContext.xml" %}
 ```markup
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -159,6 +142,98 @@ Spring配置文件是XML文件，该文件主要包含类信息，它描述了�
     </bean>
 </beans>
 ```
+{% endcode-tabs-item %}
+{% endcode-tabs %}
+
+注 ：_项目路径通常以classpath为根路径，普通Web项目中，classpath通常指src根路径下，如果是Maven项目，classpath通常指向resources文件夹下_。
+
+### Spring里的依赖注入
+
+在依赖注入中，你不必创建对象，但必须描述如何创建它们，不是直接在代码中将组件和服务连接在一起，而是描述配置文件中有哪些组件需要服务，由IoC容器将它们装配在一起。
+
+### 依赖注入的方式
+
+* 构造函数注入\(`<constructor-arg>`\)
+
+```markup
+  <!--定义bean交给Spring IoC容器管理-->
+    <bean id="category" class="com.yunche.spring.pojo.Category">
+        <!--为属性name注入初值"book"-->
+        <!--构造函数注入-->
+        <constructor-arg index="0" value="book"/>
+    </bean>
+```
+
+```java
+ public Category(String name) {
+        this.name = name;
+    }
+```
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        Category c = (Category) context.getBean("category");
+        System.out.println(c.getName());
+        
+    }
+    /*Out put:book
+    */
+}
+```
+
+* setter注入\(`<property>`\)
+
+```markup
+   <!--定义bean交给Spring IoC容器管理-->
+    <bean id="category" class="com.yunche.spring.pojo.Category">
+        <!--为属性name注入初值"book"-->
+        <!-- setter 注入-->
+        <property name="name" value="book"/>
+    </bean>
+
+    <bean id="product" class="com.yunche.spring.pojo.Product">
+        <!-- setter 注入-->
+        <property name="name" value="Thinking in Java"/>
+        <!--内部bean category -->
+        <property name="category" ref="category"/>
+    </bean>
+```
+
+```java
+  public void setName(String name) {
+        this.name = name;
+    }
+```
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        Category c = (Category) context.getBean("category");
+        System.out.println(c.getName());
+
+        Product p = (Product) context.getBean("product");
+        System.out.println(p.getCategory().getName());
+        System.out.println(p.getName());
+    }
+    /*Out put:book
+    book
+    Thinking in Java*/
+}
+```
+
+* 接口注入
+
+注：_在Spring Framework中仅使用构造函数和setter注入。_
+
+### 构造函数注入和setter注入的区别
+
+* 构造函数注入没有部分注入、setter注入有部分注入
+* 构造函数注入不会覆盖setter属性，setter注入会覆盖setter属性
+* 构造函数注入，任意修改都会创建一个新实例。setter注入，任意修改不会创建一个新实例
+* 构造函数注入适用于设置很多的属性，setter注入适用于设置少量属性
 
 ### 配置Spring Bean
 
@@ -168,13 +243,57 @@ Spring配置文件是XML文件，该文件主要包含类信息，它描述了�
 
 ### Spring Bean的作用域
 
-Spring bean支持5种scope
+Spring bean支持5种scope，默认是Singleton。
 
-1. Singleton：每一个Spring IoC容器中仅存在一个单实例bean
-2. Prototype：每次从容器中请求调用bean时，都会返回一个新的实例
-3. Request：每次Http请求都会创建一个新的bean
-4. Session：同一个HttpSession共享同一个bean，不同的HttpSession使用不同的bean
-5. GlobalSession：同一个全局Session共享一个bean
+* Singleton：每一个Spring IoC容器中仅存在一个单实例bean
+
+```markup
+ <!--定义bean交给Spring IoC容器管理-->
+    <bean id="category" class="com.yunche.spring.pojo.Category" scope="singleton">
+        <!--为属性name注入初值"book"-->
+        <property name="name" value="book"/>
+    </bean>
+```
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        Category c1 = (Category) context.getBean("category");
+        Category c2 = (Category) context.getBean("category");
+        System.out.println(c1 == c2);
+    }/*Out put:
+    true
+    */
+}
+```
+
+* Prototype：每次从容器中请求调用bean时，都会返回一个新的实例
+
+```markup
+<!--定义bean交给Spring IoC容器管理-->
+    <bean id="category" class="com.yunche.spring.pojo.Category" scope="prototype">
+        <!--为属性name注入初值"book"-->
+        <property name="name" value="book"/>
+    </bean>
+```
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        Category c1 = (Category) context.getBean("category");
+        Category c2 = (Category) context.getBean("category");
+        System.out.println(c1 == c2);
+    }/*Out put:
+    false
+    */
+}
+```
+
+* Request：每次Http请求都会创建一个新的bean
+* Session：同一个HttpSession共享同一个bean，不同的HttpSession使用不同的bean
+* GlobalSession：同一个全局Session共享一个bean
 
 ### Spring bean的生命周期
 
@@ -333,4 +452,11 @@ Spring Web MVC框架提供了模型-视图-控制器结构和随时可用的组�
 7. 客户端得到响应，可能是一个普通的HTML页面，也可以是XML或JSON字符串，或图片、PDF文件。
 
 ![](.gitbook/assets/java7-1538736616.jpg)
+
+## 参考资料
+
+* [漫画Spring Framework](https://www.javazhiyin.com/16663.html)
+* [Spring 面试问题TOP 50](https://www.javazhiyin.com/19228.html)
+* [Java面试题全集\(下\)](http://www.importnew.com/22087.html)
+* [Spring Data JPA 与Mybatis的对比](https://www.jianshu.com/p/3927c2b6acc0)
 
