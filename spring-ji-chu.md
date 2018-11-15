@@ -465,7 +465,7 @@ public class Test {
 }
 ```
 
-* `<context:componet-scan base—package="bean类"/>`：与前者不同的是，它扫描的bean不需要显式地注册到容器中，可以指定扫描package下的bean，完成自动装配，但还需@Component注解使将类标记为bean，使其能被Spring的扫描机制扫描到。
+* `<context:componet-scan base—package="bean类"/>`：与前者不同的是，它扫描的bean不需要显式地注册到容器中，可以指定扫描package下的bean，完成自动装配，但还需`@Component`注解使将类标记为bean，使其能被Spring的扫描机制扫描到。
 
 ```markup
  <!--开启注解扫描-->
@@ -529,7 +529,29 @@ public class Test {
 
 ### @Required注解
 
-@Required应用于bean属性setter方法。此注解仅指示必须在配置时使用bean定义中的显式属性值或使用自动装配填充受影响的bean属性， 如果尚未填充受影响的bean属性，则容器将抛出BeanInitializationException。
+@Required应用于bean属性setter方法。此注解仅指示必须在配置时使用bean定义中的显式属性值或使用自动装配填充受影响的bean属性， 如果尚未填充受影响的bean属性，则容器将抛出`BeanInitializationException`。
+
+```markup
+  <!--开启注解扫描-->
+    <context:annotation-config/>
+    <!--定义bean交给Spring IoC容器管理-->
+    <bean id="category" class="com.yunche.spring.pojo.Category">
+        <!--当使用了@Required注解后，属性就应被注入初值-->
+        <property name="name" value="book"/>
+    </bean>
+    <bean id="product" class="com.yunche.spring.pojo.Product">
+        <!-- setter 注入-->
+        <property name="name" value="Thinking in Java"/>
+        <!--内部bean category 注解自动注入-->
+    </bean>
+```
+
+```java
+  @Required
+    public void setName(String name) {
+        this.name = name;
+    }
+```
 
 ### @Autowired注解
 
@@ -537,7 +559,49 @@ public class Test {
 
 ### @Qualifier注解
 
-当您创建多个相同类型的bean并希望仅使用属性装配其中一个bean时，您可以使用@Qualifier注解和@Autowired通过指定应该装配哪个确切的bean来消除歧义。
+当您创建多个相同类型的bean并希望仅使用属性装配其中一个bean时，您可以使用@Qualifier注解指定bean的id和@Autowired通过指定应该装配哪个确切的bean来消除歧义。
+
+```markup
+ <!--开启注解扫描-->
+    <context:annotation-config/>
+    <!--定义bean交给Spring IoC容器管理-->
+    <bean id="category1" class="com.yunche.spring.pojo.Category">
+        <!--当使用了@Required注解后，属性就应被注入初值-->
+        <property name="name" value="book1"/>
+    </bean>
+
+    <bean id="category2" class="com.yunche.spring.pojo.Category">
+        <!--当使用了@Required注解后，属性就应被注入初值-->
+        <property name="name" value="book2"/>
+    </bean>
+
+    <bean id="product" class="com.yunche.spring.pojo.Product">
+        <!-- setter 注入-->
+        <property name="name" value="Thinking in Java"/>
+        <!--内部bean category 注解自动注入-->
+    </bean>
+```
+
+```java
+    @Qualifier("category2")
+    @Autowired
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+```
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        Product p = (Product) context.getBean("product");
+        System.out.println(p.getName());
+        System.out.println(p.getCategory().getName());
+    } /*Output:Thinking in Java
+        book2
+        */
+}
+```
 
 ### @RequestMapping
 
@@ -609,6 +673,166 @@ AOP\(Aspect-Oriented Programming\),即面向切面编程，它与OOP相辅相成
 5. 织入\(Weaving\):织入是将增强添加到目标类具体连接点上的过程，AOP有三种织入方式： a.编译期织入 b.装载期织入:需要使用特殊的类加载器，在装载类的时候对类进行增强  c.运行时织入:在运行时为目标类生成代理实现增强。Spring采用了动态代理的方式实现了运行时织入，而AspectJ采用了编译期织入和装载期织入。
 6. 切面\(Aspect\):切面是由切点和增强\(引介\)组成的，它包括了对横切关注功能的定义，也包括了对连接点的定义。
 
+### 例子
+
+这是一个AOP加动态代理的实例。
+
+```java
+package com.yunche.aop.aspect;
+
+/**
+ * @ClassName: MyAspect
+ * @Description: 切面
+ * @author: yunche
+ * @date: 2018/10/09
+ */
+public class MyAspect {
+
+    public void start() {
+        System.out.println("模拟事务处理功能...");
+    }
+
+    public void end() {
+        System.out.println("程序结束后执行此处...");
+    }
+}
+```
+
+```java
+package com.yunche.aop.jdk;
+
+/**
+ * @ClassName: UserDao
+ * @Description:
+ * @author: yunche
+ * @date: 2018/10/09
+ */
+public interface UserDao {
+
+    void addUser();
+}
+
+```
+
+```java
+package com.yunche.aop.jdk;
+
+/**
+ * @ClassName: UserDaoImpl
+ * @Description:
+ * @author: yunche
+ * @date: 2018/10/09
+ */
+public class UserDaoImpl implements UserDao {
+    @Override
+    public void addUser() {
+        System.out.println("新增用户");
+    }
+}
+
+```
+
+```java
+package com.yunche.aop.jdk;
+
+import com.yunche.aop.aspect.MyAspect;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
+/**
+ * @ClassName: JdkProxy
+ * @Description: JDK代理类
+ * @author: yunche
+ * @date: 2018/10/09
+ */
+public class JdkProxy implements InvocationHandler {
+
+    /**
+     * 声明目标类接口
+     */
+    private UserDao userDao;
+
+    /**
+     * 创建代理方法
+     *
+     * @param userDao
+     * @return
+     */
+    public Object createProxy(UserDao userDao) {
+
+        this.userDao = userDao;
+
+        //1.类加载器
+        ClassLoader classLoader = JdkProxy.class.getClassLoader();
+
+        //2.被代理对象实现的所有接口
+        Class[] clazz = userDao.getClass().getInterfaces();
+
+        //3.使用代理类、进行增强，返回的是代理后的对象
+        return Proxy.newProxyInstance(classLoader, clazz, this);
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
+        //声明切面
+        MyAspect myAspect = new MyAspect();
+
+        //指定位置程序执行前执行这个方法
+        myAspect.start();
+
+        //在目标类上调用方法
+        Object obj = method.invoke(userDao, args);
+
+        //指定位置程序执行结束后执行
+        myAspect.end();
+
+        return obj;
+    }
+
+}
+
+```
+
+```java
+package com.yunche.aop.test;
+
+import com.yunche.aop.jdk.JdkProxy;
+import com.yunche.aop.jdk.UserDao;
+import com.yunche.aop.jdk.UserDaoImpl;
+
+/**
+ * @ClassName: JdkTest
+ * @Description:
+ * @author: yunche
+ * @date: 2018/10/09
+ */
+public class JdkTest {
+
+    public static void main(String[] args) {
+
+        //创建代理对象
+        JdkProxy jdkProxy = new JdkProxy();
+
+        //创建目标对象
+        UserDao userDao = new UserDaoImpl();
+
+        //从代理对象中获取增强后的目标对象
+        UserDao userDao1 = (UserDao) jdkProxy.createProxy(userDao);
+
+        //执行方法
+        userDao1.addUser();
+    }/*Output:
+    模拟事务处理功能...
+    新增用户
+    程序结束后执行此处...
+    */
+}
+
+```
+
 ## Spring MVC
 
 ### 概念
@@ -617,7 +841,20 @@ Spring Web MVC框架提供了模型-视图-控制器结构和随时可用的组�
 
 ### 在Web项目中配置Spring MVC
 
-需在Web项目配置文件中配置其前端控制器DispatcherServlet。
+需在Web项目配置文件中配置其前端控制器`DispatcherServlet`。
+
+```markup
+ <!--Spring MVC配置-->
+    <servlet>
+        <servlet-name>springMVC</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>springMVC</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+```
 
 ### Spring MVC的工作原理\(DispatcherServlet的工作流程\)
 
